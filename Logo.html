@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Blok İşçilik Teklif Hesaplayıcı (V5.2 - S3)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --bg: #0f1525;
+      --card: #171e30;
+      --ink: #f9fafb;
+      --muted: #a9b4d4;
+      --accent: #4cc9f0;
+      --border-subtle: rgba(255,255,255,.06);
+    }
+
+    body[data-theme="light"] {
+      --bg: #f7fafc;
+      --card: #ffffff;
+      --ink: #1c2333;
+      --muted: #60708f;
+      --accent: #1d4ed8;
+      --border-subtle: rgba(15,23,42,.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: auto;
+      padding: 20px 14px 32px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+      padding: 18px 16px 22px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand img {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.35);
+    }
+
+    .title-block h1 {
+      font-size: 20px;
+      margin: 0 0 2px 0;
+    }
+
+    .title-block .sub {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mode-toggle button {
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .mode-toggle button:hover {
+      border-color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-12 { grid-column: span 12; }
+
+    @media (max-width: 720px) {
+      .col-6, .col-4, .col-12 { grid-column: span 12; }
+      .card { padding: 16px 12px 18px; }
+      .title-block h1 { font-size: 18px; }
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 3px 0 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15,23,42,.4);
+      color: var(--ink);
+      outline: none;
+      font-size: 13px;
+    }
+
+    body[data-theme="light"] input,
+    body[data-theme="light"] select {
+      background: #f9fafb;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      background: rgba(15,23,42,.35);
+      color: var(--ink);
+      text-align: center;
+    }
+
+    body[data-theme="light"] .pill {
+      background: #eef2ff;
+    }
+
+    /* GEMİ TİPİ – mobilde tek sütun, büyük buton */
+    #shipBtns {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    #shipBtns .pill {
+      flex: 1 1 auto;
+      min-width: 140px;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 720px) {
+      #shipBtns {
+        flex-direction: column;
+      }
+      #shipBtns .pill {
+        width: 100%;
+        flex: none;
+      }
+    }
+
+    .pill.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(76,201,240,.3);
+    }
+
+    .btn-main {
+      padding: 9px 14px;
+      font-size: 13px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background: linear-gradient(135deg, var(--accent), #38bdf8);
+      color: #0b1120;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-main:hover {
+      filter: brightness(1.05);
+    }
+
+    .out {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      background: radial-gradient(circle at top left, rgba(148,163,255,.16), transparent 55%);
+      background-color: rgba(15,23,42,.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 13px;
+      padding: 11px 12px;
+      margin: 5px 0;
+    }
+
+    body[data-theme="light"] .out {
+      background: #ffffff;
+    }
+
+    .out b { font-size: 18px; }
+
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .hr {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(148,163,255,.35), transparent);
+      margin: 10px 0;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: var(--muted);
+      border-radius: 8px;
+      border: 1px dashed var(--border-subtle);
+      padding: 6px 8px;
+      margin-top: 6px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+<div class="wrap">
+  <div class="card">
+
+    <div class="header">
+      <div class="brand">
+        <div class="title-block">
+          <h1>Blok İşçilik Teklif Hesaplayıcı</h1>
+          <p class="sub">İmalat &amp; Erection · Navy Blue Tema · S3</p>
+        </div>
+      </div>
+      <div class="mode-toggle">
+        <button id="themeToggle">Açık moda geç</button>
+      </div>
+    </div>
+
+    <p class="sub">
+      Mod: <b>İmalat / Erection</b> · Hesap: hizalama + montaj + kaynak + taş/raspa. Malzeme tersaneye ait, sadece işçilik.
+    </p>
+
+    <label>Mod</label>
+    <div class="row" id="modeBtns" style="margin-bottom:8px;">
+      <button class="pill active" data-mode="erection">Erection (Kızak / Slipway)</button>
+      <button class="pill" data-mode="imalat">İmalat (Atölye / Panel Line)</button>
+    </div>
+
+    <div class="grid">
+
+      <div class="col-6">
+        <label>Blok ağırlığı (kg)</label>
+        <input id="kg" type="number" step="100" value="320000">
+
+        <label>Ton başına temel adam-saat</label>
+        <div class="row" id="baseAhBtns">
+          <button class="pill active" data-ah="15">15</button>
+          <button class="pill" data-ah="20">20</button>
+          <button class="pill" data-ah="25">25</button>
+        </div>
+        <input id="baseAhTon" type="number" step="0.1" value="15" style="margin-top:6px;">
+
+        <span class="muted">Erection: 15/20/25 · İmalat: 8/12/16 seçimi önerilir.</span>
+      </div>
+
+      <div class="col-6">
+        <label>Günlük çalışma süresi (saat)</label>
+        <input id="hoursPerDay" type="number" value="8">
+
+        <label>Yevmiye (TL)</label>
+        <input id="dailyWage" type="number" value="5100">
+      </div>
+
+      <div class="col-12">
+        <div class="hr"></div>
+        <label>Gemi tipi (işçilik çarpanı)</label>
+        <div class="row" id="shipBtns">
+          <button class="pill active" data-mul="0.70" data-label="Krom tanker">Krom tanker (0.70)</button>
+          <button class="pill" data-mul="0.80" data-label="Kimyasal tanker">Kimyasal tanker (0.80)</button>
+          <button class="pill" data-mul="1.00" data-label="Bulk / General cargo">Bulk / General cargo (1.00)</button>
+          <button class="pill" data-mul="1.15" data-label="Container">Container (1.15)</button>
+          <button class="pill" data-mul="1.25" data-label="Ferry kasar">Ferry kasar (1.25)</button>
+          <button class="pill" data-mul="1.70" data-label="Passenger living">Passenger living (1.70)</button>
+          <button class="pill" data-mul="1.40" data-label="OSV / AHTS">OSV / AHTS (1.40)</button>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="hr"></div>
+        <label>Blok tipi</label>
+        <select id="blockType">
+          <option value="1.00">Kasar (1.00)</option>
+          <option value="1.10">Double bottom (1.10)</option>
+          <option value="1.15">Side / Shell (1.15)</option>
+          <option value="1.20">Tank içi (1.20)</option>
+          <option value="1.30">Living quarters (1.30)</option>
+          <option value="1.40">Funnel (1.40)</option>
+        </select>
+      </div>
+
+      <div class="col-6">
+        <div class="hr"></div>
+        <label>Boru &amp; outfitting yoğunluğu</label>
+        <select id="pipeDensity">
+          <option value="1.00">Düşük (1.00)</option>
+          <option value="1.15">Orta (1.15)</option>
+          <option value="1.30">Yüksek (1.30)</option>
+        </select>
+      </div>
+
+      <div class="col-6">
+        <div class="hr"></div>
+        <label>Panel karmaşıklığı</label>
+        <select id="complexity">
+          <option value="1.00">Düz panel (1.00)</option>
+          <option value="1.20">Eğrisel (1.20)</option>
+          <option value="1.35">Çok eğrisel (1.35)</option>
+        </select>
+      </div>
+
+      <div class="col-6">
+        <div class="hr"></div>
+        <label>Kaynak zorluğu</label>
+        <select id="weld">
+          <option value="1.00">Kolay (1.00)</option>
+          <option value="1.10">Orta (1.10)</option>
+          <option value="1.20">Zor (1.20)</option>
+        </select>
+      </div>
+
+      <div class="col-12">
+        <div class="hr"></div>
+        <button class="btn-main" onclick="hesapla()">HESAPLA</button>
+      </div>
+
+      <div class="col-12">
+        <div id="results" style="display:none;margin-top:10px;">
+
+          <div class="out">
+            <div>
+              <div class="muted">Toplam işçilik</div>
+              <b id="totalCost">0 TL</b>
+            </div>
+            <div class="muted">
+              Kg başı: <b id="costPerKg">0 TL/kg</b><br>
+              Ton başı: <span id="costPerTon">0 TL/ton</span>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="col-4">
+              <div class="out"><div><div class="muted">Toplam AS</div><b id="totalAh">0</b></div></div>
+            </div>
+            <div class="col-4">
+              <div class="out"><div><div class="muted">Adam-gün</div><b id="totalDays">0</b></div></div>
+            </div>
+            <div class="col-4">
+              <div class="out"><div><div class="muted">Efektif AS/ton</div><b id="effAhTon">0</b></div></div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="col-4">
+              <div class="out">
+                <div>
+                  <div class="muted">Montaj</div>
+                  AS: <b id="fitAh">0</b><br>
+                  ₺<span id="fitCost">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-4">
+              <div class="out">
+                <div>
+                  <div class="muted">Kaynak</div>
+                  AS: <b id="weldAhOut">0</b><br>
+                  ₺<span id="weldCost">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-4">
+              <div class="out">
+                <div>
+                  <div class="muted">Taş / Raspa</div>
+                  AS: <b id="grindAh">0</b><br>
+                  ₺<span id="grindCost">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag" id="summaryTag"></div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", () => {
+    const body = document.body;
+    const current = body.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    body.setAttribute("data-theme", next);
+    themeToggle.textContent = next === "dark" ? "Açık moda geç" : "Koyu moda geç";
+  });
+
+  const modeBtns = document.getElementById("modeBtns");
+  let currentMode = "erection";
+
+  modeBtns.addEventListener("click", (e) => {
+    const btn = e.target.closest(".pill");
+    if (!btn || !modeBtns.contains(btn)) return;
+    modeBtns.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentMode = btn.dataset.mode;
+    applyBasePresetsForMode();
+    hesapla();
+  });
+
+  const shipBtns = document.getElementById("shipBtns");
+  let shipMul = 0.70;
+  let shipLabel = "Krom tanker";
+
+  function handleShipTap(e) {
+    const btn = e.target.closest(".pill");
+    if (!btn || !shipBtns.contains(btn)) return;
+    shipBtns.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    shipMul = parseFloat(btn.dataset.mul);
+    shipLabel = btn.dataset.label;
+    hesapla();
+  }
+
+  shipBtns.addEventListener("click", handleShipTap);
+
+  const baseAhBtns = document.getElementById("baseAhBtns");
+
+  baseAhBtns.addEventListener("click", (e) => {
+    const btn = e.target.closest(".pill");
+    if (!btn || !baseAhBtns.contains(btn)) return;
+    baseAhBtns.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("baseAhTon").value = btn.dataset.ah;
+    hesapla();
+  });
+
+  function applyBasePresetsForMode() {
+    const btns = baseAhBtns.querySelectorAll(".pill");
+    const baseInput = document.getElementById("baseAhTon");
+
+    if (currentMode === "erection") {
+      const vals = [15, 20, 25];
+      btns.forEach((b, i) => { b.dataset.ah = vals[i]; b.textContent = vals[i]; });
+      if (parseFloat(baseInput.value || "0") <= 12) {
+        baseInput.value = 15;
+        btns.forEach(b => b.classList.remove("active"));
+        btns[0].classList.add("active");
+      }
+    } else {
+      const vals = [8, 12, 16];
+      btns.forEach((b, i) => { b.dataset.ah = vals[i]; b.textContent = vals[i]; });
+      if (parseFloat(baseInput.value || "0") >= 14) {
+        baseInput.value = 12;
+        btns.forEach(b => b.classList.remove("active"));
+        btns[1].classList.add("active");
+      }
+    }
+  }
+
+  const fmtTL = (n) => n.toLocaleString("tr-TR", { maximumFractionDigits: 0 });
+  const fmt = (n, d) => n.toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+  function hesapla() {
+    const kg = parseFloat(document.getElementById("kg").value || "0");
+    const baseAhTon = parseFloat(document.getElementById("baseAhTon").value || "0");
+    const hoursPerDay = parseFloat(document.getElementById("hoursPerDay").value || "0");
+    const dailyWage = parseFloat(document.getElementById("dailyWage").value || "0");
+
+    const blockMul = parseFloat(document.getElementById("blockType").value || "1");
+    const pipeMul = parseFloat(document.getElementById("pipeDensity").value || "1");
+    const compMul = parseFloat(document.getElementById("complexity").value || "1");
+    const weldMul = parseFloat(document.getElementById("weld").value || "1");
+
+    if (!kg || !baseAhTon || !hoursPerDay || !dailyWage) return;
+
+    const ton = kg / 1000;
+    const baseAh = ton * baseAhTon;
+
+    const totalMul = shipMul * blockMul * pipeMul * compMul * weldMul;
+    const totalAh = baseAh * totalMul;
+    const days = totalAh / hoursPerDay;
+    const totalCost = days * dailyWage;
+
+    document.getElementById("totalCost").textContent = fmtTL(totalCost) + " TL";
+    document.getElementById("costPerKg").textContent = fmt(totalCost / kg, 2) + " TL/kg";
+    document.getElementById("costPerTon").textContent = fmtTL(totalCost / ton) + " TL/ton";
+
+    document.getElementById("totalAh").textContent = fmt(totalAh, 1);
+    document.getElementById("totalDays").textContent = fmt(days, 2);
+    document.getElementById("effAhTon").textContent = fmt(baseAhTon * totalMul, 2);
+
+    const fitShare = 0.30, weldShare = 0.50, grindShare = 0.20;
+    const fitAh = totalAh * fitShare;
+    const weldAh = totalAh * weldShare;
+    const grindAh = totalAh * grindShare;
+
+    document.getElementById("fitAh").textContent = fmt(fitAh, 1);
+    document.getElementById("weldAhOut").textContent = fmt(weldAh, 1);
+    document.getElementById("grindAh").textContent = fmt(grindAh, 1);
+
+    document.getElementById("fitCost").textContent = fmtTL((fitAh / hoursPerDay) * dailyWage);
+    document.getElementById("weldCost").textContent = fmtTL((weldAh / hoursPerDay) * dailyWage);
+    document.getElementById("grindCost").textContent = fmtTL((grindAh / hoursPerDay) * dailyWage);
+
+    document.getElementById("summaryTag").textContent =
+      `Mod: ${currentMode} | Gemi tipi: ${shipLabel} (${shipMul})
+Çarpanlar: B:${blockMul} · P:${pipeMul} · C:${compMul} · W:${weldMul}
+Toplam çarpan: ${totalMul.toFixed(3)}`;
+
+    document.getElementById("results").style.display = "block";
+  }
+</script>
+
+</body>
+</html>
